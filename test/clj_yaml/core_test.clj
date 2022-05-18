@@ -2,8 +2,12 @@
   (:require [clojure.test :refer (deftest testing is)]
             [clojure.string :as string]
             [clojure.java.io :as io]
-            [clj-yaml.core :refer [parse-string unmark generate-string
-                                   parse-stream generate-stream]])
+            [clj-yaml.core :refer [parse-all
+                                   parse-string
+                                   unmark
+                                   generate-string
+                                   parse-stream
+                                   generate-stream]])
   (:import [java.util Date]
            (java.io ByteArrayOutputStream OutputStreamWriter ByteArrayInputStream)
            java.nio.charset.StandardCharsets
@@ -64,6 +68,16 @@ the-bin: !!binary 0101")
 ? Mark McGwire
 ? Sammy Sosa
 ? Ken Griff")
+
+(def many-documents "
+---
+[milk, pumpkin pie, eggs, juice]
+---
+men: [John Smith, Bill Jones]
+women:
+  - Mary Smith
+  - Susan Williams
+")
 
 (deftest parse-hash
   (let [parsed (parse-string "foo: bar")]
@@ -291,3 +305,12 @@ foo/bar: 42
                             :dumper-options {:indent 5
                                              :indicator-indent 2
                                              :flow-style :block})))))
+
+(deftest parse-all-test
+  (testing "Parses all documents"
+    (let [parsed (parse-all many-documents)]
+      (is (= ["milk" "pumpkin pie" "eggs" "juice"]
+             (first parsed)))
+      (is (= {:men ["John Smith" "Bill Jones"]
+              :women ["Mary Smith" "Susan Williams"]}
+             (second parsed))))))

@@ -162,6 +162,16 @@
                             :allow-duplicate-keys allow-duplicate-keys)
                  string) keywords))
 
+(defn parse-all
+  [^String string & {:keys [unsafe mark keywords max-aliases-for-collections allow-recursive-keys allow-duplicate-keys] :or {keywords true}}]
+  (map #(decode % keywords)
+       (.loadAll (make-yaml :unsafe unsafe
+                            :mark mark
+                            :max-aliases-for-collections max-aliases-for-collections
+                            :allow-recursive-keys allow-recursive-keys
+                            :allow-duplicate-keys allow-duplicate-keys)
+                 string)))
+
 ;; From https://github.com/metosin/muuntaja/pull/94/files
 (defn generate-stream
   "Dump the content of data as yaml into writer."
